@@ -1,13 +1,13 @@
 import { relations, sql } from "drizzle-orm";
 import {
   index,
-  integer,
+  pgTableCreator,
   primaryKey,
   text,
   timestamp,
   varchar,
+  integer,
 } from "drizzle-orm/pg-core";
-import { pgTableCreator } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
 
 /**
@@ -26,11 +26,11 @@ export const users = pgTable("user", {
     mode: "date",
   }).default(sql`CURRENT_TIMESTAMP(3)`),
   image: varchar("image", { length: 255 }),
+  currentOrg: varchar('current_org', { length: 255 }),
 });
 
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
-  sessions: many(sessions),
 }));
 
 export const accounts = pgTable(
@@ -51,7 +51,7 @@ export const accounts = pgTable(
     session_state: varchar("session_state", { length: 255 }),
   },
   (account) => ({
-    compoundKey: primaryKey(account.provider, account.providerAccountId),
+    compoundKey: primaryKey({ columns: [account.provider, account.providerAccountId] }),
     userIdIdx: index("userId_idx").on(account.userId),
   })
 );
@@ -70,7 +70,7 @@ export const sessions = pgTable(
     expires: timestamp("expires", { mode: "date" }).notNull(),
   },
   (session) => ({
-    userIdIdx: index("userId_idx").on(session.userId),
+    userIdIdx: index("userSessionId_idx").on(session.userId),
   })
 );
 
@@ -86,6 +86,6 @@ export const verificationTokens = pgTable(
     expires: timestamp("expires", { mode: "date" }).notNull(),
   },
   (vt) => ({
-    compoundKey: primaryKey(vt.identifier, vt.token),
+    compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
   })
 );
