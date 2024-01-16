@@ -97,7 +97,7 @@ export const verificationTokens = pgTable(
 
 export const forms = pgTable('forms', {
   id: varchar('id',  { length: 255 }).primaryKey(),
-  urlId: varchar('url_id', { length: 127 }).notNull(),
+  urlId: varchar('url_id', { length: 127 }).notNull().unique(),
   title: varchar('title', { length: 255 }).notNull(),
   description: text('description'),
   owner: varchar('owner', { length: 255 }).notNull().references(() => users.id)
