@@ -18,6 +18,9 @@ import { type AdapterAccount } from "next-auth/adapters";
  */
 export const pgTable = pgTableCreator((name) => `project_tracker_${name}`);
 
+
+/* ----------------------------------------------- Users and accounts ----------------------------------------------- */
+
 export const users = pgTable("user", {
   id: varchar("id", { length: 255 }).notNull().primaryKey(),
   name: varchar("name", { length: 255 }),
@@ -89,3 +92,13 @@ export const verificationTokens = pgTable(
     compoundKey: primaryKey({ columns: [vt.identifier, vt.token] }),
   })
 );
+
+/* ----------------------------------------------------- Forms ------------------------------------------------------ */
+
+export const forms = pgTable('forms', {
+  id: varchar('id',  { length: 255 }).primaryKey(),
+  urlId: varchar('url_id', { length: 127 }).notNull(),
+  title: varchar('title', { length: 255 }).notNull(),
+  description: text('description'),
+  owner: varchar('owner', { length: 255 }).notNull().references(() => users.id)
+});
