@@ -7,6 +7,8 @@ import {
   timestamp,
   varchar,
   integer,
+  boolean,
+  date,
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
 
@@ -34,6 +36,8 @@ export const users = pgTable("user", {
 
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
+  projects: many(projects),
+  forms: many(forms)
 }));
 
 export const accounts = pgTable(
@@ -102,3 +106,38 @@ export const forms = pgTable('forms', {
   description: text('description'),
   owner: varchar('owner', { length: 255 }).notNull().references(() => users.id)
 });
+
+export const formsRelations = relations(forms, ({ one, many }) => ({
+  owner: one(users, {
+    fields: [forms.owner],
+    references: [users.id]
+  }),
+  projects: many(projects)
+}))
+
+/* --------------------------------------------------- Projects ----------------------------------------------------- */
+export const projects = pgTable('projects', {
+  id: varchar('id', { length: 255 }).primaryKey(),
+  urlId: varchar('url_id', { length: 127 }).notNull().unique(),
+  title: varchar('title', { length: 255 }).notNull(),
+  username: varchar('user_name', { length: 255 }).notNull(),
+  email: varchar('email', { length: 255 }).notNull(),
+  description: text('description').notNull(),
+  requiresApproval: boolean('requires_approval').default(false),
+  receiveUpdates: boolean('receive_updates').default(false),
+  createdAt: timestamp('created_at').notNull(),
+  lastUpdated: timestamp('last_updated').defaultNow(),
+  formUrl: varchar('form_url', { length: 255 }).notNull().references(() => forms.urlId),
+  assignedTo: varchar('assigned_to', { length:255 }).notNull().references(() => users.id)
+});
+
+export const projectsRelations = relations(projects, ({ one }) => ({
+  form: one(forms, {
+    fields: [projects.formUrl],
+    references: [forms.urlId]
+  }),
+  assignedTo: one(users, {
+    fields: [projects.assignedTo],
+    references: [users.id]
+  })
+}))

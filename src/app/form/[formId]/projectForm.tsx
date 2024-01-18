@@ -1,7 +1,9 @@
 'use client'
 
 import { zodResolver } from "@hookform/resolvers/zod";
-import { ClipboardPenLine } from "lucide-react";
+import { ClipboardPenLine, Loader2 } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useState } from "react";
 import {
 	useForm,
 	type SubmitHandler,
@@ -13,31 +15,47 @@ import { Checkbox } from "~/components/ui/checkbox";
 import { Form, FormControl, FormDescription, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { Textarea } from "~/components/ui/textarea";
+import { api } from "~/trpc/react";
 import type { projectFormType } from "~/types";
 import { projectFormParser } from "~/types/zodParsers";
 
-type ProjectFormProps = {
+export type ProjectFormProps = {
 	formTitle: string,
 	formDescription?: string,
 	name?: string,
 	email?: string,
+	url: string
 }
 
-export function ProjectForm({ email, name, formDescription, formTitle } : ProjectFormProps) {
+export function ProjectForm({ email, name, formDescription, formTitle, url } : ProjectFormProps) {
 	const form = useForm<projectFormType>({
 		defaultValues: {
-			userName: name ?? '',
-			userEmail: email ?? '',
+			username: name ?? '',
+			email: email ?? '',
 			getReceipt: false,
-			projectDescription: '',
-			projectName: '',
+			description: '',
+			title: '',
 			receiveUpdates: false,
 			requiresApproval: false
 		},
 		resolver: zodResolver(projectFormParser)
 	});
+	const [loading, setLoading] = useState(false);
+	const router = useRouter();
+	const { mutate } = api.projects.postProject.useMutation({
+		onSuccess: () => router.push('/'),
+		onError: (err) => {
+			console.error(err);
+			setLoading(false);
+		}
+	})
+
 	const onProjectFormSubmit: SubmitHandler<projectFormType> = (values) => {
-		console.log({ values })
+		setLoading(true);
+		mutate({
+			...values,
+			formUrl: url
+		})
 	}
 	const onProjectFormError: SubmitErrorHandler<projectFormType> = (values) => {
 		console.error({ values })
@@ -59,7 +77,7 @@ export function ProjectForm({ email, name, formDescription, formTitle } : Projec
 				<h1 className="font-bold text-lg">Your info</h1>
 				<FormField
 					control={form.control}
-					name="userName"
+					name="username"
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel className="flex flex-row items-center gap-1">
@@ -74,7 +92,7 @@ export function ProjectForm({ email, name, formDescription, formTitle } : Projec
 				/>
 				<FormField
 					control={form.control}
-					name="userEmail"
+					name="email"
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel className="flex flex-row items-center gap-1">
@@ -94,7 +112,7 @@ export function ProjectForm({ email, name, formDescription, formTitle } : Projec
 				<h1 className="text-lg font-bold">Project info</h1>
 				<FormField
 					control={form.control}
-					name="projectName"
+					name="title"
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel className="flex flex-row items-center gap-1">
@@ -112,7 +130,7 @@ export function ProjectForm({ email, name, formDescription, formTitle } : Projec
 				/>
 				<FormField
 					control={form.control}
-					name="projectDescription"
+					name="description"
 					render={({ field }) => (
 						<FormItem>
 							<FormLabel className="flex flex-row items-center gap-1">
@@ -203,43 +221,10 @@ export function ProjectForm({ email, name, formDescription, formTitle } : Projec
 						</AccordionContent>
 					</AccordionItem>
 				</Accordion>
-				<Button type="submit" className="">Submit</Button>
+				<Button type="submit" className="">
+					{loading ? <Loader2 className="animate-spin text-blue-500" /> : "Submit"}
+				</Button>
 			</form>
 		</Form>
 	);
 }
-
-/*
-
-<form onSubmit={handleSubmit(onProjectFormSubmit, onProjectFormError)} className="flex flex-col gap-2">
-			
-			<div className="px-1 flex flex-col gap-3">
-				<Label htmlFor="project-description" className="flex flex-row gap-1">
-					Project Description
-					{errors.projectDescription?.message && <p className="text-red-500">*{errors.projectDescription.message}</p>}
-				</Label>
-				<Textarea
-					id="project-description"
-					placeholder="Description"
-					{...register('projectDescription')}
-				/>
-			</div>
-			<h1 className="text-lg font-bold">Extras</h1>
-			<div className="px-1 flex flex-col gap-3">
-				<div className="flex flex-row gap-1.5">
-					<Checkbox id="receive-updates"/>
-					<Label htmlFor="receive-updates">Get email updates for the project</Label>
-				</div>
-				<div className="flex flex-row gap-1.5">
-					<Checkbox id="require-approval"/>
-					<Label htmlFor="require-approval">Require approval for the project</Label>
-				</div>
-				<div className="flex flex-row gap-1.5">
-					<Checkbox id="receipt"/>
-					<Label htmlFor="receipt">Get an email receipt for this project submission</Label>
-				</div>
-			</div>
-			<Button type="submit">Submit</Button>
-		</form>
-
-*/
