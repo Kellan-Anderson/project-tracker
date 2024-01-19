@@ -1,9 +1,12 @@
 import { projectFormParser } from "~/types/zodParsers";
-import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
+import { createTRPCRouter, publicProcedure } from "../trpc";
 import { z } from "zod";
 import { eq } from "drizzle-orm";
 import { forms, projects, projectsAndUsers } from "~/server/db/schema";
 import { generateUrlId } from "~/lib/helpers/urlId";
+import { Resend } from "resend"
+import { env } from "~/env";
+import { FormReceipt } from "~/emails/formReceipt";
 
 export const projectsRouter = createTRPCRouter({
 	postProject: publicProcedure
@@ -39,8 +42,13 @@ export const projectsRouter = createTRPCRouter({
 			})
 
 			if(input.getReceipt) {
-				// setup sending email to user
-				console.log('will send email')
+				const resend = new Resend(env.RESEND_API_KEY);
+				const {} = await resend.emails.send({
+					from: 'Projects - Do not reply <onboarding@resend.dev>',
+					subject: `Receipt for ${input.title}`,
+					to: input.email,
+					react: FormReceipt({ ...input })
+				})
 			}
 		})
 })
