@@ -7,6 +7,7 @@ import { generateUrlId } from "~/lib/helpers/urlId";
 import { Resend } from "resend"
 import { env } from "~/env";
 import { FormReceipt } from "~/emails/formReceipt";
+import { ProjectNotification } from "~/emails/projectNotification";
 
 export const projectsRouter = createTRPCRouter({
 	postProject: publicProcedure
@@ -61,8 +62,12 @@ export const projectsRouter = createTRPCRouter({
 					from: 'Project submission - Do not reply <onboarding@resend.dev>',
 					subject: `${input.title} notification`,
 					to: ctx.session?.user.email,
-					react: FormReceipt({ ...input })
+					react: ProjectNotification({ ...input, formName: form.title })
 				});
+				if(error) {
+					console.log({ emailError: error });
+					throw new Error('There was an issue sending the receipt email')
+				}
 			}
 		})
 })
