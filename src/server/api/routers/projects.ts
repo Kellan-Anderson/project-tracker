@@ -43,12 +43,26 @@ export const projectsRouter = createTRPCRouter({
 
 			if(input.getReceipt) {
 				const resend = new Resend(env.RESEND_API_KEY);
-				const {} = await resend.emails.send({
+				const { error } = await resend.emails.send({
 					from: 'Projects - Do not reply <onboarding@resend.dev>',
 					subject: `Receipt for ${input.title}`,
 					to: input.email,
 					react: FormReceipt({ ...input })
-				})
+				});
+				if(error) {
+					console.log({ emailError: error });
+					throw new Error('There was an issue sending the receipt email')
+				}
+			}
+
+			if(ctx.session?.user.email) {
+				const resend = new Resend(env.RESEND_API_KEY);
+				const { error } = await resend.emails.send({
+					from: 'Project submission - Do not reply <onboarding@resend.dev>',
+					subject: `${input.title} notification`,
+					to: ctx.session?.user.email,
+					react: FormReceipt({ ...input })
+				});
 			}
 		})
 })
