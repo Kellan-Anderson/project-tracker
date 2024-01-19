@@ -9,6 +9,7 @@ import {
   integer,
   boolean,
   date,
+  pgEnum,
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
 
@@ -36,8 +37,8 @@ export const users = pgTable("user", {
 
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
-  projects: many(projects),
-  forms: many(forms)
+  forms: many(forms),
+  projectsToUsers: many(projectsAndUsers)
 }));
 
 export const accounts = pgTable(
@@ -128,16 +129,33 @@ export const projects = pgTable('projects', {
   createdAt: timestamp('created_at').notNull(),
   lastUpdated: timestamp('last_updated').defaultNow(),
   formUrl: varchar('form_url', { length: 255 }).notNull().references(() => forms.urlId),
-  assignedTo: varchar('assigned_to', { length:255 }).notNull().references(() => users.id)
 });
 
-export const projectsRelations = relations(projects, ({ one }) => ({
+export const projectsRelations = relations(projects, ({ one, many }) => ({
   form: one(forms, {
     fields: [projects.formUrl],
     references: [forms.urlId]
   }),
-  assignedTo: one(users, {
-    fields: [projects.assignedTo],
+  projectsToUsers: many(projectsAndUsers)
+}));
+
+export const permissionsEnum = pgEnum('permissions', ['viewer', 'editor', 'owner'])
+
+export const projectsAndUsers = pgTable('projects_and_users', {
+  userId: varchar('user_id', { length: 255 }).notNull().references(() => users.id),
+  projectId: varchar('project_id', { length: 255 }).notNull().references(() => projects.id),
+  permission: permissionsEnum('permission').default('viewer')
+}, (t) => ({
+  pk: primaryKey({ columns: [t.userId, t.projectId] })
+}));
+
+export const projectsAndUsersRelations = relations(projectsAndUsers, ({ one }) => ({
+  user: one(users, {
+    fields: [projectsAndUsers.userId],
     references: [users.id]
+  }),
+  project: one(projects, {
+    fields: [projectsAndUsers.projectId],
+    references: [projects.id]
   })
 }))
