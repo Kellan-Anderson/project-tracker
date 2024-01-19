@@ -85,7 +85,11 @@ export function ProjectForm({ email, name, formDescription, formTitle, url } : P
 								<FormMessage />
 							</FormLabel>
 							<FormControl>
-								<Input placeholder="First and last name" {...field} />
+								<Input
+									placeholder="First and last name"
+									disabled={name !== undefined}
+									{...field}
+								/>
 							</FormControl>
 						</FormItem>
 					)}
@@ -102,10 +106,10 @@ export function ProjectForm({ email, name, formDescription, formTitle, url } : P
 							<FormControl>
 								<Input
 									placeholder="Email"
+									disabled={email !== undefined}
 									{...field}
 								/>
 							</FormControl>
-							
 						</FormItem>
 					)}
 				/>
@@ -151,7 +155,7 @@ export function ProjectForm({ email, name, formDescription, formTitle, url } : P
 						<AccordionTrigger className="pt-0">
 							<h1 className="text-lg font-bold">Extras</h1>
 						</AccordionTrigger>
-						<AccordionContent>
+						<AccordionContent className="flex flex-col gap-2">
 							<FormField
 								control={form.control}
 								name="requiresApproval"
