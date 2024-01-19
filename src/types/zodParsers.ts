@@ -13,4 +13,12 @@ export const projectFormParser = z.object({
 	receiveUpdates: z.boolean(),
 	getReceipt: z.boolean(),
 	requiresApproval: z.boolean(),
-})
+});
+
+export const localStorageAlertParser = z.object({
+	alert: z.object({
+		title: z.string(),
+		description: z.string().optional(),
+	}),
+	severity: z.enum([ 'success', 'error' ])
+});

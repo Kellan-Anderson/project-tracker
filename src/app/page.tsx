@@ -1,12 +1,13 @@
 import Link from "next/link";
 import { SignOutButton } from "~/components/auth/signOutButton";
+import { AlertButton, AlertButtonWithError, AlertButtonWithRedirect } from "~/components/testComponents/alertButtons";
 import { Button } from "~/components/ui/button";
 import { getServerAuthSession } from "~/server/auth";
 
 export default async function HomePage() {
 	const session = await getServerAuthSession();
 	return (
-		<div className="h-full w-full flex justify-center items-center">
+		<div className="h-full w-full flex flex-col justify-center items-center">
 			{session ? (
 				<SignOutButton />
 			) : (
@@ -15,6 +16,9 @@ export default async function HomePage() {
 				</Button>
 			)}
 			{session && `Logged in as ${session.user.name}`}
+			<AlertButton />
+			<AlertButtonWithError />
+			<AlertButtonWithRedirect />
 		</div>
 	);
 }
