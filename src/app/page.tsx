@@ -1,6 +1,5 @@
 import Link from "next/link";
 import { SignOutButton } from "~/components/auth/signOutButton";
-import { AlertButton, AlertButtonWithError, AlertButtonWithRedirect } from "~/components/testComponents/alertButtons";
 import { Button } from "~/components/ui/button";
 import { getServerAuthSession } from "~/server/auth";
 
@@ -16,9 +15,6 @@ export default async function HomePage() {
 				</Button>
 			)}
 			{session && `Logged in as ${session.user.name}`}
-			<AlertButton />
-			<AlertButtonWithError />
-			<AlertButtonWithRedirect />
 		</div>
 	);
 }
