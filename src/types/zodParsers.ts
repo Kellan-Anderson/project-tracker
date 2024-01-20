@@ -22,3 +22,5 @@ export const localStorageAlertParser = z.object({
 	}),
 	severity: z.enum([ 'success', 'error' ])
 });
+
+export const projectStatusParser = z.enum(["submitted", "scheduled", "in progress", "awaiting approval", "completed"])

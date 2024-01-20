@@ -10,9 +10,14 @@ export default async function HomePage() {
 			{session ? (
 				<SignOutButton />
 			) : (
-				<Button asChild>
-					<Link href="/sign-in">Sign in</Link>
-				</Button>
+				<>
+					<Button asChild>
+						<Link href="/sign-in">Sign in</Link>
+					</Button>
+					<Button asChild>
+						<Link href="/dashboard">Go to dashboard</Link>
+					</Button>
+				</>
 			)}
 			{session && `Logged in as ${session.user.name}`}
 		</div>

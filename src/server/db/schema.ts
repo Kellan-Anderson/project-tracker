@@ -8,7 +8,6 @@ import {
   varchar,
   integer,
   boolean,
-  date,
   pgEnum,
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
@@ -117,17 +116,27 @@ export const formsRelations = relations(forms, ({ one, many }) => ({
 }))
 
 /* --------------------------------------------------- Projects ----------------------------------------------------- */
+
+export const projectStatus = pgEnum('project_status', [
+  'submitted',
+  'scheduled',
+  'in progress',
+  'awaiting approval',
+  'completed'
+]);
+
 export const projects = pgTable('projects', {
   id: varchar('id', { length: 255 }).primaryKey(),
   urlId: varchar('url_id', { length: 127 }).notNull().unique(),
   title: varchar('title', { length: 255 }).notNull(),
-  username: varchar('user_name', { length: 255 }).notNull(),
-  email: varchar('email', { length: 255 }).notNull(),
   description: text('description').notNull(),
+  status: projectStatus('status').notNull().default('submitted'),
   requiresApproval: boolean('requires_approval').default(false),
   receiveUpdates: boolean('receive_updates').default(false),
   createdAt: timestamp('created_at').notNull(),
   lastUpdated: timestamp('last_updated').defaultNow(),
+  username: varchar('user_name', { length: 255 }).notNull(),
+  email: varchar('email', { length: 255 }).notNull(),
   formUrl: varchar('form_url', { length: 255 }).notNull().references(() => forms.urlId),
 });
 
@@ -144,7 +153,7 @@ export const permissionsEnum = pgEnum('permissions', ['viewer', 'editor', 'owner
 export const projectsAndUsers = pgTable('projects_and_users', {
   userId: varchar('user_id', { length: 255 }).notNull().references(() => users.id),
   projectId: varchar('project_id', { length: 255 }).notNull().references(() => projects.id),
-  permission: permissionsEnum('permission').default('viewer')
+  permission: permissionsEnum('permission').default('viewer').notNull()
 }, (t) => ({
   pk: primaryKey({ columns: [t.userId, t.projectId] })
 }));

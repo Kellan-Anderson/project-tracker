@@ -1,7 +1,7 @@
-import { projectFormParser } from "~/types/zodParsers";
-import { createTRPCRouter, publicProcedure } from "../trpc";
+import { projectFormParser, projectStatusParser } from "~/types/zodParsers";
+import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { z } from "zod";
-import { eq } from "drizzle-orm";
+import { and, eq } from "drizzle-orm";
 import { forms, projects, projectsAndUsers } from "~/server/db/schema";
 import { generateUrlId } from "~/lib/helpers/urlId";
 import { Resend } from "resend"
@@ -69,5 +69,40 @@ export const projectsRouter = createTRPCRouter({
 					throw new Error('There was an issue sending the receipt email')
 				}
 			}
+		}),
+
+	getProjectByUrl: protectedProcedure
+		.input(z.object({ projectUrl: z.string() }))
+		.query(async ({ ctx, input }) => {
+			const project = await ctx.db.query.projects.findFirst({ where: eq(projects.urlId, input.projectUrl) });
+			if(!project)
+				throw new Error('Could not find that project');
+			const permission = await ctx.db.query.projectsAndUsers.findFirst({ where: and(
+				eq(projectsAndUsers.projectId, project.id),
+				eq(projectsAndUsers.userId, ctx.session.user.id),
+			)})
+			if(!permission)
+				throw new Error('You do not have access to view this project')
+			return {
+				project,
+				permission: permission.permission
+			}
+		}),
+
+	updateProjectStatus: protectedProcedure
+		.input(z.object({
+			newStatus: projectStatusParser,
+			projectId: z.string()
+		}))
+		.mutation(async ({ ctx, input }) => {
+			const verification = await ctx.db.query.projectsAndUsers.findFirst({ where: and(
+				eq(projectsAndUsers.projectId, input.projectId),
+				eq(projectsAndUsers.userId, ctx.session.user.id)
+			)});
+			if(!verification) 
+				throw new Error('There was an issue retrieving the project permission');
+			if(verification.permission === 'viewer')
+				throw new Error('You do ont have permission to update this project');
+			await ctx.db.update(projects).set({ status: input.newStatus })
 		})
 })
