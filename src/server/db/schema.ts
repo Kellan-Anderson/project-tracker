@@ -11,6 +11,7 @@ import {
   pgEnum,
 } from "drizzle-orm/pg-core";
 import { type AdapterAccount } from "next-auth/adapters";
+import { createInsertSchema, createSelectSchema } from "drizzle-zod";
 
 /**
  * This is an example of how to use the multi-project schema feature of Drizzle ORM. Use the same
@@ -113,7 +114,10 @@ export const formsRelations = relations(forms, ({ one, many }) => ({
     references: [users.id]
   }),
   projects: many(projects)
-}))
+}));
+
+export const insertFormSchema = createInsertSchema(forms);
+export const selectFormSchema = createSelectSchema(forms)
 
 /* --------------------------------------------------- Projects ----------------------------------------------------- */
 
@@ -148,6 +152,9 @@ export const projectsRelations = relations(projects, ({ one, many }) => ({
   projectsToUsers: many(projectsAndUsers)
 }));
 
+export const insertProjectsSchema = createInsertSchema(projects);
+export const selectProjectsSchema = createSelectSchema(projects);
+
 export const permissionsEnum = pgEnum('permissions', ['viewer', 'editor', 'owner'])
 
 export const projectsAndUsers = pgTable('projects_and_users', {
@@ -157,6 +164,9 @@ export const projectsAndUsers = pgTable('projects_and_users', {
 }, (t) => ({
   pk: primaryKey({ columns: [t.userId, t.projectId] })
 }));
+
+export const insertProjectsAndUsersSchema = createInsertSchema(projectsAndUsers);
+export const selectProjectsAndUsersSchema = createSelectSchema(projectsAndUsers);
 
 export const projectsAndUsersRelations = relations(projectsAndUsers, ({ one }) => ({
   user: one(users, {
@@ -189,4 +199,7 @@ export const updatesRelations = relations(updates, ({ one }) => ({
     fields: [updates.projectId],
     references: [projects.id]
   })
-}))
+}));
+
+export const updatesInsertSchema = createInsertSchema(updates);
+export const updatesSelectSchema = createSelectSchema(updates);
