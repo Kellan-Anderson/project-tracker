@@ -34,7 +34,7 @@ export function StatusSelector({ defaultStatus, projectId } : StatusSelectorProp
 
 	return (
 		<Select defaultValue={defaultStatus} onValueChange={onSelectionChange}>
-			<SelectTrigger disabled={isLoading} className="w-fit gap-2 dark:bg-primary text-black font-semibold">
+			<SelectTrigger disabled={isLoading} className="w-fit gap-2 font-semibold">
 				<SelectValue placeholder="Choose a status" />
 			</SelectTrigger>
 			<SelectGroup>
