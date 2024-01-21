@@ -168,3 +168,25 @@ export const projectsAndUsersRelations = relations(projectsAndUsers, ({ one }) =
     references: [projects.id]
   })
 }))
+
+
+/* --------------------------------------------------- Updates  ----------------------------------------------------- */
+
+export const notificationType = pgEnum('notification_type', ['notifying', 'non-notifying']);
+
+export const updates = pgTable('updates', {
+  id: varchar('id', { length: 255 }).primaryKey(),
+  projectId: varchar('project_id', { length: 255 }).notNull().references(() => projects.id),
+  title: text('title').notNull(),
+  notes: text('notes'),
+  createdAt: timestamp('created_at').notNull().defaultNow(),
+  notificationType: notificationType('notification_type').notNull().default('non-notifying'),
+  isEdited: boolean('is_edited').notNull().default(false)
+})
+
+export const updatesRelations = relations(updates, ({ one }) => ({
+  project: one(projects, {
+    fields: [updates.projectId],
+    references: [projects.id]
+  })
+}))
