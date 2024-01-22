@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ArrowRight } from "lucide-react";
 import dayjs from "dayjs"; 
 import relativeTime from "dayjs/plugin/relativeTime";
+import { AddUpdateButton } from "./_updateComponets/addUpdateForm";
 
 dayjs.extend(relativeTime);
 
@@ -32,7 +33,7 @@ export default async function ProjectPage({ params } : { params: { projectUrl: s
 				{project.receiveUpdates && <b>Update notifications have been turned on for this project</b>}
 			</section>
 			<section>
-				Updates coming soon
+				{permission !== 'viewer' && <AddUpdateButton projectId={project.id} />}
 			</section>
 		</div>
 	);
