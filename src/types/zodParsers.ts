@@ -24,3 +24,5 @@ export const localStorageAlertParser = z.object({
 });
 
 export const projectStatusParser = z.enum(["submitted", "scheduled", "in progress", "awaiting approval", "completed"])
+
+export const permissionsParser = z.enum(['owner', 'viewer', 'editor'])

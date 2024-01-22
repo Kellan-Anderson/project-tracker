@@ -19,7 +19,7 @@ const statuses: projectStatus[] = [
 ];
 
 export function StatusSelector({ defaultStatus, projectId } : StatusSelectorProps) {
-	const { mutate, isLoading } = api.projects.updateProjectStatus.useMutation({
+	const { mutate, isLoading } = api.project.updateProjectStatus.useMutation({
 		onSuccess: () => {
 			toast.success('Project status changed successfully')
 		},

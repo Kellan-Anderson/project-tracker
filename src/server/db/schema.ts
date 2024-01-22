@@ -38,7 +38,8 @@ export const users = pgTable("user", {
 export const usersRelations = relations(users, ({ many }) => ({
   accounts: many(accounts),
   forms: many(forms),
-  projectsToUsers: many(projectsAndUsers)
+  projectsToUsers: many(projectsAndUsers),
+  updates: many(updates),
 }));
 
 export const accounts = pgTable(
@@ -149,7 +150,8 @@ export const projectsRelations = relations(projects, ({ one, many }) => ({
     fields: [projects.formUrl],
     references: [forms.urlId]
   }),
-  projectsToUsers: many(projectsAndUsers)
+  projectsToUsers: many(projectsAndUsers),
+  updates: many(updates)
 }));
 
 export const insertProjectsSchema = createInsertSchema(projects);
@@ -187,6 +189,7 @@ export const notificationType = pgEnum('notification_type', ['notifying', 'non-n
 export const updates = pgTable('updates', {
   id: varchar('id', { length: 255 }).primaryKey(),
   projectId: varchar('project_id', { length: 255 }).notNull().references(() => projects.id),
+  authorId: varchar('author_id').notNull().references(() => users.id),
   title: text('title').notNull(),
   notes: text('notes'),
   createdAt: timestamp('created_at').notNull().defaultNow(),
@@ -198,6 +201,10 @@ export const updatesRelations = relations(updates, ({ one }) => ({
   project: one(projects, {
     fields: [updates.projectId],
     references: [projects.id]
+  }),
+  author: one(users, {
+    fields: [updates.authorId],
+    references: [users.id]
   })
 }));
 

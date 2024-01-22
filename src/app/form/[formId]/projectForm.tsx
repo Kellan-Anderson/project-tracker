@@ -42,7 +42,7 @@ export function ProjectForm({ email, name, formDescription, formTitle, url } : P
 	});
 	const [loading, setLoading] = useState(false);
 	const router = useRouter();
-	const { mutate } = api.projects.postProject.useMutation({
+	const { mutate } = api.project.postProject.useMutation({
 		onSuccess: () => router.push('/'),
 		onError: (err) => {
 			console.error(err);

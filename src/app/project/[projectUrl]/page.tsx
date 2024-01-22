@@ -9,7 +9,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 dayjs.extend(relativeTime);
 
 export default async function ProjectPage({ params } : { params: { projectUrl: string }}) {
-	const { project, permission } = await api.projects.getProjectByUrl.query({ projectUrl: params.projectUrl });
+	const { project, permission } = await api.project.getProjectByUrl.query({ projectUrl: params.projectUrl });
 	return (
 		<div className="w-full flex flex-col lg:flex-row">
 			<section id="project-details" className="lg:w-1/2 lg:sticky lg:top-0 p-7 flex flex-col gap-3">
