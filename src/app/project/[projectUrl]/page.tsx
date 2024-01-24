@@ -8,6 +8,7 @@ import relativeTime from "dayjs/plugin/relativeTime";
 import { AddUpdateButton } from "./_updateComponets/addUpdateForm";
 import { getServerAuthSession } from "~/server/auth";
 import { redirect } from "next/navigation";
+import { NotifyingUpdate } from "./_updateComponets/updateCards";
 
 dayjs.extend(relativeTime);
 
@@ -18,6 +19,8 @@ export default async function ProjectPage({ params } : { params: { projectUrl: s
 		redirect('/sign-in');
 
 	const { project, permission } = await api.project.getProjectByUrl.query({ projectUrl: params.projectUrl });
+	const updates = await api.updates.getUpdatesByProjectId.query({ projectId: project.id })
+
 	return (
 		<div className="w-full flex flex-col lg:flex-row">
 			<section id="project-details" className="lg:w-1/2 lg:sticky lg:top-0 p-7 flex flex-col gap-3">
@@ -41,6 +44,7 @@ export default async function ProjectPage({ params } : { params: { projectUrl: s
 			</section>
 			<section className="grow">
 				{permission !== 'viewer' && <AddUpdateButton projectId={project.id} />}
+				{updates.map(update => <NotifyingUpdate key={update.id} {...{update, permission}} />)}
 			</section>
 		</div>
 	);

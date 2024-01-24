@@ -34,7 +34,7 @@ export function AddUpdateButton({ projectId } : AddButtonProps) {
 	return (
 		<>
 			<Card
-				className="flex flex-col justify-center items-center px-4 py-6 w-full border-dashed border-zinc-600"
+				className="flex flex-col justify-center items-center px-4 py-6 w-full border-dashed border-zinc-600 cursor-pointer"
 				onClick={() => setOpen(true)}
 			>
 				<Plus className="h-8 w-8"/>
