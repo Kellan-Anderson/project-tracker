@@ -6,10 +6,17 @@ import { ArrowRight } from "lucide-react";
 import dayjs from "dayjs"; 
 import relativeTime from "dayjs/plugin/relativeTime";
 import { AddUpdateButton } from "./_updateComponets/addUpdateForm";
+import { getServerAuthSession } from "~/server/auth";
+import { redirect } from "next/navigation";
 
 dayjs.extend(relativeTime);
 
 export default async function ProjectPage({ params } : { params: { projectUrl: string }}) {
+
+	const session = await getServerAuthSession();
+	if(!session)
+		redirect('/sign-in');
+
 	const { project, permission } = await api.project.getProjectByUrl.query({ projectUrl: params.projectUrl });
 	return (
 		<div className="w-full flex flex-col lg:flex-row">
@@ -32,7 +39,7 @@ export default async function ProjectPage({ params } : { params: { projectUrl: s
 				{project.requiresApproval && <b>This project requires approval before it can be closed</b>}
 				{project.receiveUpdates && <b>Update notifications have been turned on for this project</b>}
 			</section>
-			<section>
+			<section className="grow">
 				{permission !== 'viewer' && <AddUpdateButton projectId={project.id} />}
 			</section>
 		</div>

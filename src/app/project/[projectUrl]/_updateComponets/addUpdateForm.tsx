@@ -1,11 +1,13 @@
 'use client'
 
 import { zodResolver } from "@hookform/resolvers/zod";
+import { Plus } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { useState } from "react";
 import { type SubmitHandler, useForm } from "react-hook-form";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
+import { Card } from "~/components/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
 import { ResponsiveDialog } from "~/components/ui/responsiveDialog";
@@ -31,7 +33,13 @@ export function AddUpdateButton({ projectId } : AddButtonProps) {
 
 	return (
 		<>
-			<Button onClick={() => setOpen(true)}>Add update</Button>
+			<Card
+				className="flex flex-col justify-center items-center px-4 py-6 w-full border-dashed border-zinc-600"
+				onClick={() => setOpen(true)}
+			>
+				<Plus className="h-8 w-8"/>
+				Add an update
+			</Card>
 			<ResponsiveDialog
 				open={open}
 				onOpenChange={setOpen}

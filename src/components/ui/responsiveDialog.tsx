@@ -13,7 +13,7 @@ type ResponsiveDialogProps = {
 export function ResponsiveDialog(props: ResponsiveDialogProps) {
 
 	const size = useScreenSize();
-	if(size === 'loading') return <p>This is a test</p>;
+	if(size === 'loading') return <></>;
 
 	if(size.width >= 1024) return (
 		<Dialog {...props}>
