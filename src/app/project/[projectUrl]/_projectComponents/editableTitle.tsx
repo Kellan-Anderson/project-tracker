@@ -2,22 +2,35 @@
 
 import { zodResolver } from "@hookform/resolvers/zod";
 import { Check, Pencil, X } from "lucide-react";
+import { useRouter } from "next/navigation";
 import { useRef, useState } from "react";
-import { Control, SubmitHandler, useForm } from "react-hook-form";
+import { 
+	type Control,
+	type SubmitHandler,
+	useForm
+} from "react-hook-form";
 import { z } from "zod";
 import { Button } from "~/components/ui/button";
 import { Form, FormControl, FormField, FormItem } from "~/components/ui/form";
 import { Input } from "~/components/ui/input";
+import { api } from "~/trpc/react";
 import type { permissions } from "~/types";
 
 type EditableTitleFieldProps = {
 	title: string,
-	permission: permissions
+	permission: permissions,
+	projectId: string
 }
 
-export function EditableTitleField({ title, permission } : EditableTitleFieldProps) {
+export function EditableTitleField({ title, permission, projectId } : EditableTitleFieldProps) {
 	const [editMode, setEditMode] = useState(false);
 	const titleRef = useRef(title);
+	const router = useRouter();
+	const { mutate } = api.project.updateTitle.useMutation({
+		onSuccess: () => {
+			router.refresh();
+		}
+	})
 
 	const form = useForm<z.infer<typeof editTitleParser>>({
 		defaultValues: {
@@ -27,8 +40,9 @@ export function EditableTitleField({ title, permission } : EditableTitleFieldPro
 	});
 	const onEditTitleSubmit: SubmitHandler<z.infer<typeof editTitleParser>> = (values) => {
 		if(titleRef.current !== values.title) {
-			console.log({ values })
-		} else console.log('No change')
+			mutate({ ...values, projectId })
+		}
+		setEditMode(false)
 	}
 
 	return (

@@ -25,7 +25,7 @@ export default async function ProjectPage({ params } : { params: { projectUrl: s
 	return (
 		<div className="w-full flex flex-col lg:flex-row">
 			<section id="project-details" className="lg:w-1/2 lg:sticky lg:top-0 p-7 flex flex-col gap-3">
-				<EditableTitleField title={project.title} permission={permission}/>
+				<EditableTitleField title={project.title} permission={permission} projectId={project.id}/>
 				<div className="flex flex-row items-center">
 					<p className="text-muted-foreground">Submitted {dayjs(project.createdAt).fromNow()}</p>
 					<Dot className="text-muted-foreground"/>

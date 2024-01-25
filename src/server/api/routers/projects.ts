@@ -8,6 +8,7 @@ import { Resend } from "resend"
 import { env } from "~/env";
 import { FormReceipt } from "~/emails/formReceipt";
 import { ProjectNotification } from "~/emails/projectNotification";
+import { checkPermission } from "~/lib/helpers/projectPermission";
 
 export const projectsRouter = createTRPCRouter({
 	postProject: publicProcedure
@@ -104,5 +105,27 @@ export const projectsRouter = createTRPCRouter({
 			if(verification.permission === 'viewer')
 				throw new Error('You do ont have permission to update this project');
 			await ctx.db.update(projects).set({ status: input.newStatus })
-		})
+		}),
+
+		updateTitle: protectedProcedure
+			.input(z.object({
+				title: z.string(),
+				projectId: z.string()
+			}))
+			.mutation(async ({ ctx, input }) => {
+				const allowed = await checkPermission({
+					userId: ctx.session.user.id,
+					projectId: input.projectId,
+					isNot: 'viewer'
+				})
+				if(!allowed)
+					throw new Error('You do not have access to this project')
+				await ctx.db
+					.update(projects)
+					.set({
+						title: input.title,
+						lastUpdated: new Date()
+					})
+					.where(eq(projects.id, input.projectId))
+			})
 })
