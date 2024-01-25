@@ -38,6 +38,29 @@ export const updatesRouter = createTRPCRouter({
 				authorId: ctx.session.user.id,
 				id: `update-${crypto.randomUUID()}`,
 			})
+		}),
+
+	editUpdate: protectedProcedure
+		.input(z.object({
+			title: z.string(),
+			notes: z.string().optional(),
+			projectId: z.string(),
+			updateId: z.string()
+		}))
+		.mutation(async ({ ctx, input }) => {
+			const projectRef = await ctx.db.query.projectsAndUsers.findFirst({
+				where: getProjectVerification(ctx.session.user.id, input.projectId)
+			});
+			if(!projectRef)
+				throw new Error('There was an error while retrieving the update');
+			if(projectRef.permission === 'viewer')
+				throw new Error('You do not have permission to perform this action');
+
+			await ctx.db.update(updates).set({
+				notes: input.notes,
+				title: input.title,
+				isEdited: true
+			}).where(and(eq(updates.id, input.updateId), eq(updates.projectId, input.projectId)))
 		})
 })
 
