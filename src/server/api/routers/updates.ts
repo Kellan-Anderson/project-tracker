@@ -1,7 +1,7 @@
 import { z } from "zod";
 import { createTRPCRouter, protectedProcedure } from "../trpc";
 import { and, eq } from "drizzle-orm";
-import { projectsAndUsers, updates } from "~/server/db/schema";
+import { projects, projectsAndUsers, updates } from "~/server/db/schema";
 
 export const updatesRouter = createTRPCRouter({
 	getUpdatesByProjectId: protectedProcedure
@@ -33,11 +33,15 @@ export const updatesRouter = createTRPCRouter({
 				throw new Error('There was an error while retrieving the project')
 			if(userPermission.permission === 'viewer')
 				throw new Error('You do not have permission to add an update')
-			await ctx.db.insert(updates).values({
-				...input,
-				authorId: ctx.session.user.id,
-				id: `update-${crypto.randomUUID()}`,
-			})
+			
+			await Promise.all([
+				ctx.db.insert(updates).values({
+					...input,
+					authorId: ctx.session.user.id,
+					id: `update-${crypto.randomUUID()}`,
+				}),
+				ctx.db.update(projects).set({ lastUpdated: new Date() }).where(eq(projects.id, input.projectId))
+			])
 		}),
 
 	editUpdate: protectedProcedure

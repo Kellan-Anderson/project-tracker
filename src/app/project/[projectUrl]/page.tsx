@@ -2,13 +2,14 @@ import { api } from "~/trpc/server";
 import { StatusSelector } from "./_projectComponents/statusSelector";
 import { Button } from "~/components/ui/button";
 import Link from "next/link";
-import { ArrowRight } from "lucide-react";
+import { ArrowRight, Dot } from "lucide-react";
 import dayjs from "dayjs"; 
 import relativeTime from "dayjs/plugin/relativeTime";
 import { AddUpdateButton } from "./_updateComponets/addUpdateForm";
 import { getServerAuthSession } from "~/server/auth";
 import { redirect } from "next/navigation";
 import { NotifyingUpdate } from "./_updateComponets/updateCards";
+import { EditableTitleField } from "./_projectComponents/editableTitle";
 
 dayjs.extend(relativeTime);
 
@@ -24,8 +25,12 @@ export default async function ProjectPage({ params } : { params: { projectUrl: s
 	return (
 		<div className="w-full flex flex-col lg:flex-row">
 			<section id="project-details" className="lg:w-1/2 lg:sticky lg:top-0 p-7 flex flex-col gap-3">
-				<h1 className="text-5xl font-bold">{project.title}</h1>
-				<p className="text-muted-foreground">Submitted {dayjs(project.createdAt).fromNow()}</p>
+				<EditableTitleField title={project.title} permission={permission}/>
+				<div className="flex flex-row items-center">
+					<p className="text-muted-foreground">Submitted {dayjs(project.createdAt).fromNow()}</p>
+					<Dot className="text-muted-foreground"/>
+					<p className="text-muted-foreground">Last update: {dayjs(project.lastUpdated).fromNow()}</p>
+				</div>
 				<div className="flex flex-row gap-2">
 					{permission !== 'viewer' && <StatusSelector defaultStatus={project.status} projectId={project.id} />}
 					<Button asChild variant='outline' className="font-semibold gap-2">
