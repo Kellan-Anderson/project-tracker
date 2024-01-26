@@ -24,8 +24,8 @@ export default async function ProjectPage({ params } : { params: { projectUrl: s
 	const updates = await api.updates.getUpdatesByProjectId.query({ projectId: project.id })
 
 	return (
-		<div className="w-full flex flex-col lg:flex-row">
-			<section id="project-details" className="lg:w-1/2 lg:sticky lg:top-0 p-7 flex flex-col gap-3">
+		<div className="w-full flex flex-col lg:flex-row relative">
+			<section id="project-details" className="lg:w-1/2 p-7 flex flex-col gap-3">
 				<EditableTitleField title={project.title} permission={permission} projectId={project.id}/>
 				<div className="flex flex-row items-center">
 					<p className="text-muted-foreground">Submitted {dayjs(project.createdAt).fromNow()}</p>
@@ -48,8 +48,13 @@ export default async function ProjectPage({ params } : { params: { projectUrl: s
 				{project.requiresApproval && <b>This project requires approval before it can be closed</b>}
 				{project.receiveUpdates && <b>Update notifications have been turned on for this project</b>}
 			</section>
-			<section className="grow">
-				{permission !== 'viewer' && <AddUpdateButton projectId={project.id} />}
+			<section className="grow p-7">
+				<h1 className="text-3xl font-semibold pb-4">Project updates</h1>
+				{permission !== 'viewer' && (
+					<div className="pb-4">
+						<AddUpdateButton projectId={project.id} />
+					</div>
+				)}
 				{updates.map(update => (
 					<React.Fragment key={update.id}>
 						{update.notificationType === 'notifying' ? (
@@ -57,6 +62,9 @@ export default async function ProjectPage({ params } : { params: { projectUrl: s
 						) : (
 							<NonNotifyingUpdate update={update} />
 						)}
+						<div className="w-full flex items-center justify-center last:hidden">
+							<div className="h-4 w-px px-px bg-border"></div>
+						</div>
 					</React.Fragment>
 				))}
 			</section>
