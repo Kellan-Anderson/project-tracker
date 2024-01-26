@@ -2,7 +2,7 @@ import { projectFormParser, projectStatusParser } from "~/types/zodParsers";
 import { createTRPCRouter, protectedProcedure, publicProcedure } from "../trpc";
 import { z } from "zod";
 import { and, eq } from "drizzle-orm";
-import { forms, projects, projectsAndUsers } from "~/server/db/schema";
+import { forms, projects, projectsAndUsers, updates } from "~/server/db/schema";
 import { generateUrlId } from "~/lib/helpers/urlId";
 import { Resend } from "resend"
 import { env } from "~/env";
@@ -120,12 +120,23 @@ export const projectsRouter = createTRPCRouter({
 				})
 				if(!allowed)
 					throw new Error('You do not have access to this project')
-				await ctx.db
-					.update(projects)
-					.set({
-						title: input.title,
-						lastUpdated: new Date()
-					})
-					.where(eq(projects.id, input.projectId))
+
+				await Promise.all([
+					ctx.db
+						.update(projects)
+						.set({
+							title: input.title,
+							lastUpdated: new Date()
+						})
+						.where(eq(projects.id, input.projectId)),
+					ctx.db
+						.insert(updates)
+						.values({
+							authorId: ctx.session.user.id,
+							id: `update-${crypto.randomUUID()}`,
+							projectId: input.projectId,
+							title: `${ctx.session.user.name} change the project name to ${input.title}`
+						})
+				])
 			})
 })

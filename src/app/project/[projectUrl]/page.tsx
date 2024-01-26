@@ -5,11 +5,12 @@ import Link from "next/link";
 import { ArrowRight, Dot } from "lucide-react";
 import dayjs from "dayjs"; 
 import relativeTime from "dayjs/plugin/relativeTime";
-import { AddUpdateButton } from "./_updateComponets/addUpdateForm";
+import { AddUpdateButton } from "./_updateComponents/addUpdateForm";
 import { getServerAuthSession } from "~/server/auth";
 import { redirect } from "next/navigation";
-import { NotifyingUpdate } from "./_updateComponets/updateCards";
+import { NonNotifyingUpdate, NotifyingUpdate } from "./_updateComponents/updateCards";
 import { EditableTitleField } from "./_projectComponents/editableTitle";
+import * as React from "react"
 
 dayjs.extend(relativeTime);
 
@@ -49,7 +50,15 @@ export default async function ProjectPage({ params } : { params: { projectUrl: s
 			</section>
 			<section className="grow">
 				{permission !== 'viewer' && <AddUpdateButton projectId={project.id} />}
-				{updates.map(update => <NotifyingUpdate key={update.id} {...{update, permission}} />)}
+				{updates.map(update => (
+					<React.Fragment key={update.id}>
+						{update.notificationType === 'notifying' ? (
+							<NotifyingUpdate update={update} permission={permission} />
+						) : (
+							<NonNotifyingUpdate update={update} />
+						)}
+					</React.Fragment>
+				))}
 			</section>
 		</div>
 	);

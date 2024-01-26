@@ -4,7 +4,7 @@ import { z } from "zod";
 import type { permissions } from "~/types";
 import { type updatesSelectSchema } from "~/server/db/schema";
 
-import { Card, CardContent, CardHeader, CardTitle } from "~/components/ui/card";
+import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "~/components/ui/card";
 import { Button } from "~/components/ui/button";
 import { Check, Pencil, X } from "lucide-react";
 import { useRef, useState } from "react";
@@ -89,15 +89,29 @@ export function NotifyingUpdate({ permission, update } : UpdateProps) {
 							</div>
 						)}
 					</CardHeader>
-					<CardContent>
-						{editMode ? (
-							<EditField control={form.control} size="textarea" />
-						) : (
-							update.notes
-						)}
-					</CardContent>
+					{(update.notes ?? editMode) && (
+						<CardContent>
+							{editMode ? (
+								<EditField control={form.control} size="textarea" />
+							) : (
+								update.notes
+							)}
+						</CardContent>
+					)}
 				</form>
 			</Form>
+		</Card>
+	);
+}
+
+type nonNotifyingUpdateProps = {
+	update: z.infer<typeof updatesSelectSchema>
+}
+
+export function NonNotifyingUpdate({ update } : nonNotifyingUpdateProps) {
+	return (
+		<Card className="flex justify-center items-center py-4">
+			<CardDescription>{update.title}</CardDescription>
 		</Card>
 	);
 }
